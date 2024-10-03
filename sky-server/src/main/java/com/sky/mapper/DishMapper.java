@@ -1,5 +1,8 @@
 package com.sky.mapper;
 
+import com.sky.annotation.AutoFill;
+import com.sky.entity.Dish;
+import com.sky.enumeration.OperationType;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -15,4 +18,11 @@ public interface DishMapper {
      * @return
      */
     Integer countByCategoryId(Long categoryId);
+
+    /**
+     * 插入菜品数据
+     * @param dish
+     */
+    @AutoFill(OperationType.INSERT)
+    void insert(Dish dish);
 }

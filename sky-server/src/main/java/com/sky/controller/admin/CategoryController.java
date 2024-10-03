@@ -93,4 +93,16 @@ public class CategoryController {
         return Result.success();
     }
 
+    /**
+     * 根据类型查询分类
+     * @return
+     */
+    @GetMapping("/list")
+    @ApiOperation("根据类型查询分类")
+    public Result<List<Category>> listByType(Integer type) {
+        log.info("根据类型查询分类，type={}", type);
+        List<Category> categories = categoryService.listByType(type);
+        return Result.success(categories);
+    }
+
 }
