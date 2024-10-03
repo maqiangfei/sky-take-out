@@ -8,5 +8,6 @@ sky:
     password: root
   fastdfs:
     props-file-path: "fdfs_client.properties"
+    http-prefix: "http"
 
 

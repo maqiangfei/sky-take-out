@@ -19,15 +19,6 @@ public class FastDfsUtilTest {
     private FastDfsUtil fastDfsUtil;
 
     @Test
-    void testUpload() throws Exception {
-        FileInputStream fileInputStream = new FileInputStream("/Users/maffy/Documents/temp/temp.txt");
-        byte[] bytes = new byte[fileInputStream.available()];
-        fileInputStream.read(bytes);
-        String path = fastDfsUtil.upload(bytes, "temp.txt");
-        System.out.println(path);
-    }
-
-    @Test
     void testGetInfo() throws Exception {
         NameValuePair[] info = fastDfsUtil.getInfo("group1/M00/00/00/rBBAgGb882yAAOZdAAAAcHCySKY95..txt");
         for (NameValuePair nameValuePair : info) {
@@ -37,7 +28,7 @@ public class FastDfsUtilTest {
 
     @Test
     void testDelete() throws Exception {
-        fastDfsUtil.delete("group1/M00/00/00/rBBAgGb882yAAOZdAAAAcHCySKY95..txt");
+        fastDfsUtil.delete("group1/M00/00/00/rBBAgGb8_FWANsmpAAASxCc7ac489.jpeg");
     }
 
 }

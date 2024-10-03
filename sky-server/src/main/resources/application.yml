@@ -20,7 +20,7 @@ mybatis:
   configuration:
     #开启驼峰命名
     map-underscore-to-camel-case: true
-
+    auto-mapping-behavior: full
 logging:
   level:
     com:

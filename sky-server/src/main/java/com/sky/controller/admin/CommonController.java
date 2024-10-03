@@ -38,7 +38,7 @@ public class CommonController {
             log.info("文件‘{}’上传成功，上传位置：{}", file.getOriginalFilename(), filePath);
             return Result.success(filePath);
         } catch (Exception e) {
-            log.info("文件‘{}’上传失败", file.getOriginalFilename());
+            log.error("文件‘{}’上传失败", file.getOriginalFilename());
         }
         return Result.error(MessageConstant.UPLOAD_FAILED);
     }

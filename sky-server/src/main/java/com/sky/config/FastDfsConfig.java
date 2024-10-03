@@ -16,8 +16,9 @@ public class FastDfsConfig {
 
     @Bean
     public FastDfsUtil fastDfsUtil(
-            @Value("${sky.fastdfs.props-file-path}") String propsFilePath) {
+            @Value("${sky.fastdfs.props-file-path}") String propsFilePath,
+            @Value("${sky.fastdfs.http-prefix}") String httpPrefix) {
         log.info("创建fastdfs文件上传工具类对象");
-        return new FastDfsUtil(propsFilePath);
+        return new FastDfsUtil(propsFilePath, httpPrefix);
     }
 }

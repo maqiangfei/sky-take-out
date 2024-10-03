@@ -2,7 +2,6 @@ package com.sky.utils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.csource.common.MyException;
 import org.csource.common.NameValuePair;
 import org.csource.fastdfs.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,11 +19,11 @@ import java.io.IOException;
 public class FastDfsUtil {
 
     private final String propsFilePath;
+    private final String httpPrefix;
 
     private String trackerHost;
     private TrackerServer trackerServer;
 
-    private String httpPrefix = "http://";
 
     @PostConstruct
     public void init() {
@@ -37,58 +36,60 @@ public class FastDfsUtil {
         }
     }
 
-    public String upload(MultipartFile file) throws Exception {
+    public String upload(MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
-        String extName = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+        String extName = originalFilename == null ? "" :
+                originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
 
         StorageClient1 storageClient = new StorageClient1(trackerServer);
 
         NameValuePair[] nameValuePairs = new NameValuePair[1];
         nameValuePairs[0] = new NameValuePair("fileName", originalFilename);
 
-        String path = null;
+        String path;
         try {
             path = storageClient.upload_file1(file.getBytes(), extName, nameValuePairs);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         } finally {
-            storageClient.close();
+            try {
+                storageClient.close();
+            } catch (IOException e) {
+                log.error("图片删除失败：{}", e.getMessage());
+            }
         }
-        return httpPrefix + trackerHost + "/" + path;
+        return httpPrefix + "://" + trackerHost + "/" + path;
     }
 
-    public String upload(byte[] bytes, String originalFilename) throws Exception {
-        String extName = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
-
-        StorageClient1 storageClient = new StorageClient1(trackerServer);
-
-        NameValuePair[] nameValuePairs = new NameValuePair[1];
-        nameValuePairs[0] = new NameValuePair("fileName", originalFilename);
-
-        String path = null;
-        try {
-            path = storageClient.upload_file1(bytes, extName, nameValuePairs);
-        } finally {
-            storageClient.close();
-        }
-        return httpPrefix + trackerHost + "/" + path;
-    }
-
-    public NameValuePair[] getInfo(String fileId) throws Exception {
+    public NameValuePair[] getInfo(String fileId) {
         StorageClient1 client1 = new StorageClient1(trackerServer);
-        NameValuePair[] nameValuePairs = null;
+        NameValuePair[] nameValuePairs;
         try {
             nameValuePairs = client1.get_metadata1(fileId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         } finally {
-            client1.close();
+            try {
+                client1.close();
+            } catch (IOException e) {
+                log.error(e.getMessage());
+            }
         }
         return nameValuePairs;
     }
 
-    public void delete(String fileId) throws Exception {
+    public int delete(String fileId) {
         StorageClient1 client1 = new StorageClient1(trackerServer);
         try {
-            client1.delete_file1(fileId);
+            return client1.delete_file1(fileId);
+        } catch (Exception e) {
+            return 1;
         } finally {
-            client1.close();
+            try {
+                client1.close();
+            } catch (IOException e) {
+                log.error(e.getMessage());
+            }
         }
     }
 }
