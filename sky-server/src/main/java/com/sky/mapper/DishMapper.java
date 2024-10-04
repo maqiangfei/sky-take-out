@@ -39,7 +39,7 @@ public interface DishMapper {
     Page<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
 
     /**
-     * 查询启用的个数
+     * 查询起售的个数
      * @param ids
      * @return
      */
@@ -57,4 +57,17 @@ public interface DishMapper {
      * @return
      */
     List<String> getImageByIds(List<Long> ids);
+
+    /**
+     * 根据id查询菜品
+     * @return
+     */
+    DishVO getByIdWithFlavor(Long id);
+
+    /**
+     * 修改菜品
+     * @param dish
+     */
+    @AutoFill(OperationType.UPDATE)
+    void update(Dish dish);
 }

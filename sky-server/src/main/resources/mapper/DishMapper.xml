@@ -13,6 +13,20 @@
         insert into dish(name, category_id, price, image, description, status, create_time, update_time, create_user, update_user)
         values (#{name}, #{categoryId}, #{price}, #{image}, #{description}, #{status}, #{createTime}, #{updateTime}, #{createUser}, #{updateUser})
     </insert>
+    <update id="update">
+        update dish
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="image != null">image = #{image},</if>
+            <if test="description != null">`description` = #{description},</if>
+            <if test="status != null">`status` = #{status},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="updateUser != null">update_user = #{updateUser}</if>
+        </set>
+        where id = #{id}
+    </update>
     <delete id="deleteBatch">
         delete from dish
         where id in <include refid="ids"/>
@@ -21,7 +35,7 @@
     <select id="countByCategoryId" resultType="java.lang.Integer">
         select count(*) from dish where category_id = #{categoryId}
     </select>
-    <select id="pageQuery" resultMap="dishWithFlavorsResultMap">
+    <select id="pageQuery" resultType="com.sky.vo.DishVO">
         select 
             d.id,
             d.name,
@@ -31,20 +45,13 @@
             d.status,
             d.description, 
             d.update_time, 
-            c.name c_name,
-            df.id df_id,
-            df.name df_name,
-            df.value
+            c.name categoryName
         from 
             dish d
         left join
             category c
         on 
             d.category_id = c.id
-        left join
-            dish_flavor df
-        on
-            d.id = df.dish_id
         <where>
             <if test="categoryId != null">
                 and d.category_id = #{categoryId}
@@ -68,6 +75,25 @@
         select image
         from dish
         where id in <include refid="ids"/>
+    </select>
+    <select id="getByIdWithFlavor" resultMap="dishWithFlavorsResultMap">
+        select
+            d.id,
+            d.name,
+            d.category_id,
+            d.price,
+            d.image,
+            d.description,
+            d.status,
+            d.update_time,
+            df.name df_name,
+            df.value
+        from
+            dish d
+        left join
+            dish_flavor df
+        on d.id = df.dish_id
+        where d.id = #{id}
     </select>
 
     <resultMap id="dishWithFlavorsResultMap" type="com.sky.vo.DishVO">

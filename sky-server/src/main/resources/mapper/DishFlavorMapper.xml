@@ -10,11 +10,21 @@
             (#{df.dishId}, #{df.name}, #{df.value})
         </foreach>
     </insert>
-    <delete id="deleteBatch">
+    <insert id="saveBatch">
+        insert into dish_flavor (dish_id, name, value) VALUES
+        <foreach collection="list" item="flavor" separator=",">
+            (#{flavor.dishId}, #{flavor.name}, #{flavor.value})
+        </foreach>
+    </insert>
+    <delete id="deleteBatchByDishIds">
         delete from dish_flavor
         where dish_id in
         <foreach collection="list" item="dishId" open="(" separator="," close=")">
             #{dishId}
         </foreach>
+    </delete>
+    <delete id="deleteByDishId">
+        delete from dish_flavor
+        where dish_id = #{dishId}
     </delete>
 </mapper>

@@ -60,7 +60,7 @@ public class DishServiceImpl implements DishService {
 
         // 向口味表插入n条数据
         List<DishFlavor> flavors = dishDTO.getFlavors();
-        if (flavors != null && flavors.size() > 0) {
+        if (flavors != null && !flavors.isEmpty()) {
             flavors.forEach(flavor -> flavor.setDishId(dishId));
             dishFlavorMapper.insertBatch(flavors);
         }
@@ -108,8 +108,52 @@ public class DishServiceImpl implements DishService {
             }
         });
         // 删除菜品相关口味
-        dishFlavorMapper.deleteBatch(ids);
+        dishFlavorMapper.deleteBatchByDishIds(ids);
         // 删除菜品
         dishMapper.deleteBatch(ids);
+    }
+
+    /**
+     *
+     * @return
+     */
+    @Override
+    public DishVO getByIdWithFlavor(Long id) {
+        return dishMapper.getByIdWithFlavor(id);
+    }
+
+    /**
+     * 修改菜品
+     * @param dishDTO
+     */
+    @Override
+    @Transactional
+    public void updateWithFlavor(DishDTO dishDTO) {
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO, dish);
+        dishMapper.update(dish);
+
+        Long dishId = dish.getId();
+        dishFlavorMapper.deleteByDishId(dishId);
+
+        List<DishFlavor> flavors = dishDTO.getFlavors();
+        if (flavors != null && !flavors.isEmpty()) {
+            flavors.forEach(flavor -> flavor.setDishId(dishId));
+            dishFlavorMapper.saveBatch(flavors);
+        }
+    }
+
+    /**
+     * 起售停售菜品
+     * @param status
+     * @param id
+     */
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        Dish dish = Dish.builder()
+                .status(status)
+                .id(id)
+                .build();
+        dishMapper.update(dish);
     }
 }
