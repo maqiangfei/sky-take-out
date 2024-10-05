@@ -1,6 +1,14 @@
 package com.sky.mapper;
 
+import com.github.pagehelper.Page;
+import com.sky.annotation.AutoFill;
+import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.entity.Setmeal;
+import com.sky.enumeration.OperationType;
+import com.sky.vo.SetmealVO;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 /**
  * @author maqiangfei
@@ -10,9 +18,63 @@ import org.apache.ibatis.annotations.Mapper;
 public interface SetmealMapper {
 
     /**
-     * 查询指定分类的套餐数量
+     * 查询指定分类及状态的套餐数量
      * @param categoryId
      * @return
      */
-    Integer countByCategoryId(Long categoryId);
+    Integer countByCategoryIdAndStatus(Long categoryId, Integer status);
+
+    /**
+     * 新增套餐
+     * @param setmeal
+     */
+    @AutoFill(OperationType.INSERT)
+    void save(Setmeal setmeal);
+
+    /**
+     * 分页查询套餐
+     * @param setmealPageQueryDTO
+     * @return
+     */
+    Page<SetmealVO> pageQuery(SetmealPageQueryDTO setmealPageQueryDTO);
+
+    /**
+     * 更新套餐信息
+     * @param setmeal
+     */
+    @AutoFill(OperationType.UPDATE)
+    void update(Setmeal setmeal);
+
+    /**
+     * 根据id查询套餐及其菜品
+     * @return
+     */
+    SetmealVO getByIdWithSetmealDish();
+
+    /**
+     * 根据id查询分类id
+     * @param id
+     * @return
+     */
+    Long getCategoryId(Long id);
+
+    /**
+     * 批量删除套餐
+     * @param ids
+     */
+    void deleteByIds(List<Long> ids);
+
+    /**
+     * 根据id查询图片路径
+     * @param ids
+     * @return
+     */
+    List<String> getImageByIds(List<Long> ids);
+
+    /**
+     * 批量查询起售套餐的数量
+     * @param ids
+     * @return
+     */
+    Integer countEnabledByIds(List<Long> ids);
 }

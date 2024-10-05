@@ -49,4 +49,18 @@ public interface CategoryMapper {
      * @return
      */
     List<Category> listByType(Integer type);
+
+    /**
+     * 查询分类状态
+     * @param id
+     * @return
+     */
+    Integer getStatus(Long id);
+
+    /**
+     * 查询类型
+     * @param id
+     * @return
+     */
+    Integer getType(Long id);
 }

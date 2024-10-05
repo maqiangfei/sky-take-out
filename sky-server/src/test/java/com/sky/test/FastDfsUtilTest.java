@@ -28,7 +28,7 @@ public class FastDfsUtilTest {
 
     @Test
     void testDelete() throws Exception {
-        fastDfsUtil.delete("group1/M00/00/00/rBBAgGb8_FWANsmpAAASxCc7ac489.jpeg");
+        fastDfsUtil.delete("group1/M00/00/00/rBBAgGb_ogWAdJS9AAASxCc7ac459.jpeg");
     }
 
 }

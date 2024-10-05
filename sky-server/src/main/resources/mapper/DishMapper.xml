@@ -32,8 +32,12 @@
         where id in <include refid="ids"/>
     </delete>
 
-    <select id="countByCategoryId" resultType="java.lang.Integer">
-        select count(*) from dish where category_id = #{categoryId}
+    <select id="countByCategoryIdAndStatus" resultType="java.lang.Integer">
+        select count(*) from dish
+        <where>
+            <if test="categoryId != null">and category_id = #{categoryId}</if>
+            <if test="status != null">and status = #{status}</if>
+        </where>
     </select>
     <select id="pageQuery" resultType="com.sky.vo.DishVO">
         select 
@@ -94,6 +98,17 @@
             dish_flavor df
         on d.id = df.dish_id
         where d.id = #{id}
+    </select>
+    <select id="listByType" resultType="com.sky.entity.Dish">
+        select d.id, d.name, d.price, d.description, d.status
+        from dish d
+        where d.category_id = #{categoryId}
+    </select>
+    <select id="getCategoryId" resultType="java.lang.Long">
+        select dish.category_id from dish where id = #{id}
+    </select>
+    <select id="countEnabledByCategoryId" resultType="java.lang.Integer">
+        select count(*) from dish where status = 1 and category_id = #{categoryId}
     </select>
 
     <resultMap id="dishWithFlavorsResultMap" type="com.sky.vo.DishVO">

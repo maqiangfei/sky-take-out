@@ -37,6 +37,8 @@ public class GlobalExceptionHandler {
             String msg = username + MessageConstant.ALREADY_EXISTS;
             return Result.error(msg);
         } else {
+            log.error("未知错误：{}", ex.getMessage());
+            ex.printStackTrace();
             return Result.error(MessageConstant.UNKNOWN_ERROR);
         }
     }

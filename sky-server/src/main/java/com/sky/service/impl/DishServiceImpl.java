@@ -2,12 +2,16 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.constant.LogConstant;
 import com.sky.constant.MessageConstant;
+import com.sky.constant.StatusConstant;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
 import com.sky.exception.DeletionNotAllowedException;
+import com.sky.exception.EnableNotAllowedException;
+import com.sky.mapper.CategoryMapper;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
@@ -22,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author maqiangfei
@@ -42,6 +47,9 @@ public class DishServiceImpl implements DishService {
 
     @Autowired
     private FastDfsUtil fastDfsUtil;
+
+    @Autowired
+    private CategoryMapper categoryMapper;
 
     /**
      * 新增菜品和对应口味
@@ -93,7 +101,7 @@ public class DishServiceImpl implements DishService {
         if (count > 0) {
             throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
         }
-        // 查询是否有关联的菜品
+        // 查询是否有关联的套餐
         count = setmealDishMapper.countByDishIds(ids);
         if (count > 0) {
             throw new DeletionNotAllowedException(MessageConstant.DISH_BE_RELATED_BY_SETMEAL);
@@ -102,10 +110,9 @@ public class DishServiceImpl implements DishService {
         List<String> images = dishMapper.getImageByIds(ids);
         // 删除图片
         images.forEach(image -> {
-            image = image.substring(image.indexOf("/", 8) + 1);
-            if (fastDfsUtil.delete(image) > 0) {
-                log.error("清除图片失败，{}", image);
-            }
+            String fileId = image.substring(image.indexOf("/", 8) + 1);
+            if (fastDfsUtil.delete(fileId) > 0)
+                log.error(LogConstant.CLEAR_DISH_PIC_ERROR + ",{}", fileId);
         });
         // 删除菜品相关口味
         dishFlavorMapper.deleteBatchByDishIds(ids);
@@ -150,10 +157,29 @@ public class DishServiceImpl implements DishService {
      */
     @Override
     public void startOrStop(Integer status, Long id) {
+        if (status.equals(StatusConstant.ENABLE)) {
+            // 启售菜品时需要先检查其分类是否启用
+            Long categoryId = dishMapper.getCategoryId(id);
+            Integer categoryStatus = categoryMapper.getStatus(categoryId);
+            if (categoryStatus.equals(StatusConstant.DISABLE)) {
+                throw new EnableNotAllowedException(MessageConstant.DISH_ENABLE_FAILED);
+            }
+        }
+
         Dish dish = Dish.builder()
                 .status(status)
                 .id(id)
                 .build();
         dishMapper.update(dish);
+    }
+
+    /**
+     * 菜品分类查询
+     * @param categoryId
+     * @return
+     */
+    @Override
+    public List<Dish> listByType(Long categoryId) {
+        return dishMapper.listByType(categoryId);
     }
 }

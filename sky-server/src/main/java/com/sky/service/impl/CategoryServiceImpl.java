@@ -2,12 +2,13 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.constant.CategoryTypeConstant;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
-import com.sky.context.BaseContext;
 import com.sky.dto.CategoryDTO;
 import com.sky.dto.CategoryPageQueryDTO;
 import com.sky.entity.Category;
+import com.sky.exception.DisableNotAllowedException;
 import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.CategoryMapper;
 import com.sky.mapper.DishMapper;
@@ -18,7 +19,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -87,6 +87,23 @@ public class CategoryServiceImpl implements CategoryService {
      */
     @Override
     public void startOrStop(Integer status, Long id) {
+        if (status.equals(StatusConstant.DISABLE)) {
+            // 停用分类先检查其菜品或套餐是否有起售的
+            Integer type = categoryMapper.getType(id);
+            if (type.equals(CategoryTypeConstant.DISH_TYPE)) {
+                // 菜品分类，去dish查
+                Integer count = dishMapper.countByCategoryIdAndStatus(id, StatusConstant.ENABLE);
+                if (count > 0) {
+                    throw new DisableNotAllowedException(MessageConstant.DISH_CATEGORY_DISABLE_FAILED);
+                }
+            } else if (type.equals(CategoryTypeConstant.SETMEAL_TYPE)) {
+                // 套餐分类，去setmeal查
+                Integer count = setmealMapper.countByCategoryIdAndStatus(id, StatusConstant.ENABLE);
+                if (count > 0) {
+                    throw new DisableNotAllowedException(MessageConstant.SETMEAL_CATEGORY_DISABLE_FAILED);
+                }
+            }
+        }
         Category category = Category.builder()
                 .id(id)
                 .status(status)
@@ -103,12 +120,12 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void deleteById(Long id) {
         // 查询该分类是否关联了菜品
-        Integer count = dishMapper.countByCategoryId(id);
+        Integer count = dishMapper.countByCategoryIdAndStatus(id, null);
         if (count > 0) {
             throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_DISH);
         }
         // 查询该分类是否关联了套餐
-        Integer count1 = setmealMapper.countByCategoryId(id);
+        Integer count1 = setmealMapper.countByCategoryIdAndStatus(id, null);
         if (count1 > 0) {
             throw new DeletionNotAllowedException(MessageConstant.CATEGORY_BE_RELATED_BY_SETMEAL);
         }

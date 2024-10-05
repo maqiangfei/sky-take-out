@@ -17,7 +17,10 @@ public class MessageConstant {
     public static final String ADDRESS_BOOK_IS_NULL = "用户地址为空，不能下单";
     public static final String LOGIN_FAILED = "登录失败";
     public static final String UPLOAD_FAILED = "文件上传失败";
-    public static final String SETMEAL_ENABLE_FAILED = "套餐内包含未启售菜品，无法启售";
+    public static final String SETMEAL_ENABLE_FAILED = "套餐所属分类未启用，无法起售";
+    public static final String DISH_ENABLE_FAILED = "菜品所属分类未启用，无法起售";
+    public static final String DISH_CATEGORY_DISABLE_FAILED = "分类下有菜品在售，无法停用";
+    public static final String SETMEAL_CATEGORY_DISABLE_FAILED = "分类下有套餐在售，无法停用";
     public static final String PASSWORD_EDIT_FAILED = "密码修改失败";
     public static final String DISH_ON_SALE = "起售中的菜品不能删除";
     public static final String SETMEAL_ON_SALE = "起售中的套餐不能删除";

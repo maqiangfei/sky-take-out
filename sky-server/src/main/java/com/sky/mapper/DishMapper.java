@@ -18,11 +18,11 @@ import java.util.List;
 public interface DishMapper {
 
     /**
-     * 根据分类查询菜品数量
+     * 查询指定分类和状态的菜品数量
      * @param categoryId
      * @return
      */
-    Integer countByCategoryId(Long categoryId);
+    Integer countByCategoryIdAndStatus(Long categoryId, Integer status);
 
     /**
      * 插入菜品数据
@@ -70,4 +70,18 @@ public interface DishMapper {
      */
     @AutoFill(OperationType.UPDATE)
     void update(Dish dish);
+
+    /**
+     * 菜品分类查询
+     * @param categoryId
+     * @return
+     */
+    List<Dish> listByType(Long categoryId);
+
+    /**
+     * 查询菜品分类id
+     * @param id
+     * @return
+     */
+    Long getCategoryId(Long id);
 }
