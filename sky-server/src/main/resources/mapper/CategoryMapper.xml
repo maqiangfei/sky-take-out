@@ -33,9 +33,12 @@
         order by sort
     </select>
     <select id="listByType" resultType="com.sky.entity.Category">
-        select id, name, sort
+        select id, type, name, sort
         from category
-        where type = #{type}
+        <where>
+            <if test="type != null">type = #{type}</if>
+        </where>
+        order by sort
     </select>
     <select id="getStatus" resultType="java.lang.Integer">
         select status from category where id = #{id}

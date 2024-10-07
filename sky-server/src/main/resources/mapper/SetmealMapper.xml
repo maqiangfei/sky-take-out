@@ -73,7 +73,7 @@
             </if>
         </where>
     </select>
-    <select id="getByIdWithSetmealDish" resultMap="SetmealWithDishResultMap">
+    <select id="getByIdWithSetmealDish" resultMap="setmealWithDishResultMap">
         select
             s.id,
             s.category_id,
@@ -89,10 +89,10 @@
             sd.copies
         from
             setmeal s
-        left join
+                left join
             setmeal_dish sd
-        on
-            s.id = sd.setmeal_id
+            on
+                s.id = sd.setmeal_id
     </select>
     <select id="getCategoryId" resultType="java.lang.Long">
         select category_id from setmeal where id = #{id}
@@ -106,8 +106,44 @@
         <include refid="ids"/>
         and `status` = 1
     </select>
+    <select id="list" resultType="com.sky.entity.Setmeal">
+        select
+            s.id,
+            s.category_id,
+            s.`name`,
+            s.price,
+            s.`status`,
+            s.description,
+            s.image,
+            s.update_time
+        from
+            setmeal s
+        <where>
+            <if test="categoryId != null">
+                and s.category_id = #{categoryId}
+            </if>
+            <if test="status != null">
+                and s.status = #{status}
+            </if>
+        </where>
+    </select>
+    <select id="getDishItemBySetmealId" resultType="com.sky.vo.DishItemVO">
+        select
+            sd.name,
+            sd.copies,
+            d.image,
+            d.description
+        from
+            setmeal_dish sd
+                left join
+            dish d
+            on
+                sd.dish_id = d.id
+        where
+            sd.setmeal_id = #{setmealId}
+    </select>
 
-    <resultMap id="SetmealWithDishResultMap" type="com.sky.vo.SetmealVO">
+    <resultMap id="setmealWithDishResultMap" type="com.sky.vo.SetmealVO">
         <id column="id" property="id"/>
         <collection property="setmealDishes" ofType="com.sky.entity.SetmealDish">
             <id column="sd_id" property="id"/>

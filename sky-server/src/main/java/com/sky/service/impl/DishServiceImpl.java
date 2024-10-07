@@ -25,8 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author maqiangfei
@@ -181,5 +181,14 @@ public class DishServiceImpl implements DishService {
     @Override
     public List<Dish> listByType(Long categoryId) {
         return dishMapper.listByType(categoryId);
+    }
+
+    /**
+     * 条件查询菜品和口味
+     * @param dish
+     * @return
+     */
+    public List<DishVO> listWithFlavor(Dish dish) {
+        return dishMapper.listWithFlavor(dish);
     }
 }

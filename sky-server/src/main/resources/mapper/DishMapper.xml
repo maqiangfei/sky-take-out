@@ -110,6 +110,32 @@
     <select id="countEnabledByCategoryId" resultType="java.lang.Integer">
         select count(*) from dish where status = 1 and category_id = #{categoryId}
     </select>
+    <select id="listWithFlavor" resultMap="dishWithFlavorsResultMap">
+        select
+            d.id,
+            d.name,
+            d.category_id,
+            d.price,
+            d.image,
+            d.description,
+            d.status,
+            d.update_time,
+            df.name df_name,
+            df.value
+        from
+            dish d
+                left join
+            dish_flavor df
+                on d.id = df.dish_id
+        <where>
+            <if test="categoryId != null">
+                and d.category_id = #{categoryId}
+            </if>
+            <if test="status != null">
+                and d.status = #{status}
+            </if>
+        </where>
+    </select>
 
     <resultMap id="dishWithFlavorsResultMap" type="com.sky.vo.DishVO">
         <id column="id" property="id"/>
