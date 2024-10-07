@@ -6,6 +6,11 @@ sky:
     database: sky_take_out
     username: root
     password: root
+  redis:
+    host: 172.16.64.128
+    port: 6379
+    password: redis
+    database: 0
   fastdfs:
     props-file-path: "fdfs_client.properties"
     http-prefix: "http"
