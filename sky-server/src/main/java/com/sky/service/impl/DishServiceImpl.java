@@ -1,6 +1,5 @@
 package com.sky.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.LogConstant;
@@ -19,20 +18,18 @@ import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
 import com.sky.result.PageResult;
-import com.sky.result.Result;
 import com.sky.service.DishService;
 import com.sky.utils.FastDfsUtil;
 import com.sky.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author maqiangfei
@@ -56,9 +53,6 @@ public class DishServiceImpl implements DishService {
 
     @Autowired
     private CategoryMapper categoryMapper;
-
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 新增菜品和对应口味
@@ -132,7 +126,7 @@ public class DishServiceImpl implements DishService {
     }
 
     /**
-     *
+     * 根据id查询菜品及其口味
      * @return
      */
     @Override
@@ -173,7 +167,8 @@ public class DishServiceImpl implements DishService {
      * @return categoryId
      */
     @Override
-    public void startOrStop(Integer status, Long id) {
+    @CacheEvict(cacheNames = RedisConstant.DISH_CATEGORY_KEY, key = "#result")
+    public Long startOrStop(Integer status, Long id) {
         Long categoryId = dishMapper.getCategoryId(id);;
         if (status.equals(StatusConstant.ENABLE)) {
             // 启售菜品时需要先检查其分类是否启用
@@ -187,9 +182,8 @@ public class DishServiceImpl implements DishService {
                 .id(id)
                 .build();
         dishMapper.update(dish);
-        // 删除该菜品分类的缓存
-        String key = RedisConstant.DISH_CATEGORY_KEY + categoryId;
-        stringRedisTemplate.delete(key);
+
+        return categoryId;
     }
 
     /**
@@ -207,31 +201,12 @@ public class DishServiceImpl implements DishService {
      * @param categoryId
      * @return
      */
+    @Override
+    @Cacheable(cacheNames = RedisConstant.DISH_CATEGORY_KEY, key = "#categoryId")
     public List<DishVO> listWithFlavor(Long categoryId) {
-        // 查询Redis缓存
-        String key = RedisConstant.DISH_CATEGORY_KEY + categoryId;
-        String json = stringRedisTemplate.opsForValue().get(key);
-        if ("".equals(json)) {
-            // 命中空对象
-            return null;
-        }
-        if (StringUtils.isNotBlank(json)) {
-            // 命中缓存
-            return JSON.parseArray(json, DishVO.class);
-        }
-        // 缓存不存在，查询数据库
         Dish dish = new Dish();
         dish.setCategoryId(categoryId);
         dish.setStatus(StatusConstant.ENABLE);// 查询起售中的菜品
-        List<DishVO> list = dishMapper.listWithFlavor(dish);
-        if (list.isEmpty()) {
-            // 缓存穿透，缓存空对象
-            stringRedisTemplate.opsForValue().set(key, "", RedisConstant.NULL_CACHE_TTL, TimeUnit.SECONDS);
-            return null;
-        }
-        // 缓存该分类下所有菜品
-        stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(list));
-
-        return list;
+        return dishMapper.listWithFlavor(dish);
     }
 }

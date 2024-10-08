@@ -51,7 +51,7 @@ public interface DishService {
      * @param id
      * @return categoryId
      */
-    void startOrStop(Integer status, Long id);
+    Long startOrStop(Integer status, Long id);
 
     /**
      * 菜品分类查询

@@ -7,9 +7,9 @@ package com.sky.constant;
 public class RedisConstant {
 
     public static final String SHOP_STATUS_KEY = "shop:status";
-    public static final String DISH_CATEGORY_KEY = "dish:category:";
-    public static final String SETMEAL_CATEGORY_KEY = "setmeal:category:";
-    public static final String SETMEAL_DISHITEM_KEY = "setmeal:dishitem:";
+    public static final String DISH_CATEGORY_KEY = "dish:category";
+    public static final String SETMEAL_CATEGORY_KEY = "setmeal:category";
+    public static final String SETMEAL_DISHITEM_KEY = "setmeal:dishitem";
 
     public static final Long NULL_CACHE_TTL = 1L;
 }

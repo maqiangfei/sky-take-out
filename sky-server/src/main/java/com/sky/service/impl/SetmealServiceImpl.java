@@ -1,6 +1,5 @@
 package com.sky.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.LogConstant;
@@ -18,22 +17,21 @@ import com.sky.mapper.CategoryMapper;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
-import com.sky.result.Result;
 import com.sky.service.SetmealService;
 import com.sky.utils.FastDfsUtil;
 import com.sky.vo.DishItemVO;
 import com.sky.vo.SetmealVO;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author maqiangfei
@@ -54,9 +52,6 @@ public class SetmealServiceImpl implements SetmealService {
 
     @Autowired
     private FastDfsUtil fastDfsUtil;
-
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 修改套餐和其与菜品的关联
@@ -104,7 +99,11 @@ public class SetmealServiceImpl implements SetmealService {
      * @return categoryId
      */
     @Override
-    public void startOrStop(Integer status, Long id) {
+    @Caching(evict = {
+            @CacheEvict(cacheNames = RedisConstant.SETMEAL_CATEGORY_KEY, key = "#result"),
+            @CacheEvict(cacheNames = RedisConstant.SETMEAL_DISHITEM_KEY, key = "#id")
+    })
+    public Long startOrStop(Integer status, Long id) {
         Long categoryId = setmealMapper.getCategoryId(id);
         if (status.equals(StatusConstant.ENABLE)) {
             // 启用套餐先检查分类是否开启
@@ -118,13 +117,7 @@ public class SetmealServiceImpl implements SetmealService {
                 .id(id)
                 .build();
         setmealMapper.update(setmeal);
-
-        // 删除该分类下的套餐缓存
-        String key = RedisConstant.SETMEAL_CATEGORY_KEY + categoryId;
-        stringRedisTemplate.delete(key);
-        // 删除该套餐的菜品缓存
-        key = RedisConstant.SETMEAL_DISHITEM_KEY + id;
-        stringRedisTemplate.delete(key);
+        return categoryId;
     }
 
     /**
@@ -159,31 +152,13 @@ public class SetmealServiceImpl implements SetmealService {
      * @return
      */
     @Override
+    @Cacheable(cacheNames = RedisConstant.SETMEAL_CATEGORY_KEY, key = "#categoryId")
     public List<Setmeal> list(Long categoryId) {
-        // 从Redis中查询缓存
-        String key = RedisConstant.SETMEAL_CATEGORY_KEY + categoryId;
-        String json = stringRedisTemplate.opsForValue().get(key);
-        if ("".equals(json)) {
-            // 命中空对象
-            return null;
-        }
-        if (StringUtils.isNotBlank(json)) {
-            // 命中缓存
-            return JSON.parseArray(json, Setmeal.class);
-        }
         Setmeal setmeal = Setmeal.builder()
                 .categoryId(categoryId)
                 .status(StatusConstant.ENABLE)
                 .build();
-        List<Setmeal> list = setmealMapper.list(setmeal);
-        if (list.isEmpty()) {
-            // 缓存穿透，缓存空对象
-            stringRedisTemplate.opsForValue().set(key, "", RedisConstant.NULL_CACHE_TTL, TimeUnit.SECONDS);
-            return null;
-        }
-        // 缓存该分类的套餐商品
-        stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(list));
-        return list;
+        return setmealMapper.list(setmeal);
     }
 
     /**
@@ -192,25 +167,9 @@ public class SetmealServiceImpl implements SetmealService {
      * @return
      */
     @Override
+    @Cacheable(cacheNames = RedisConstant.SETMEAL_DISHITEM_KEY, key = "#id")
     public List<DishItemVO> getDishItemById(Long id) {
-        // 从Redis中查询套餐的商品缓存
-        String key = RedisConstant.SETMEAL_DISHITEM_KEY + id;
-        String json = stringRedisTemplate.opsForValue().get(key);
-        if ("".equals(json)) {
-            return null;
-        }
-        if (StringUtils.isNotBlank(json)) {
-            // 命中缓存
-            return JSON.parseArray(json, DishItemVO.class);
-        }
-        List<DishItemVO> list = setmealMapper.getDishItemBySetmealId(id);
-        if (list.isEmpty()) {
-            stringRedisTemplate.opsForValue().set(key, "", RedisConstant.NULL_CACHE_TTL, TimeUnit.SECONDS);
-        }
-        // 缓存该套餐的商品
-        stringRedisTemplate.opsForValue().set(key, JSON.toJSONString(list));
-
-        return list;
+        return setmealMapper.getDishItemBySetmealId(id);
     }
 
     /**

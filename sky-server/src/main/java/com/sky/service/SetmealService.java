@@ -46,7 +46,7 @@ public interface SetmealService {
      * @param status
      * @param id
      */
-    void startOrStop(Integer status, Long id);
+    Long startOrStop(Integer status, Long id);
 
     /**
      * 根据id删除套餐及和菜品的关系
