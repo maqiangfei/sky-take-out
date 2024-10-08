@@ -1,5 +1,7 @@
 package com.sky.utils;
 
+import com.sky.constant.MessageConstant;
+import com.sky.exception.UploadFailedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.csource.common.NameValuePair;
@@ -50,7 +52,7 @@ public class FastDfsUtil {
         try {
             path = storageClient.upload_file1(file.getBytes(), extName, nameValuePairs);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new UploadFailedException(MessageConstant.UPLOAD_FAILED);
         } finally {
             try {
                 storageClient.close();

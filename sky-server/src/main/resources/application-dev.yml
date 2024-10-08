@@ -14,5 +14,8 @@ sky:
   fastdfs:
     props-file-path: "fdfs_client.properties"
     http-prefix: "http"
+  wechat:
+    appid: wxf6a1f7bc1c0b3c1d
+    secret: c9a27465627759a28acce4fcb10fca0c
 
 

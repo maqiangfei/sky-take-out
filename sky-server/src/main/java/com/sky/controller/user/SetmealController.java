@@ -1,6 +1,5 @@
 package com.sky.controller.user;
 
-import com.sky.constant.StatusConstant;
 import com.sky.entity.Setmeal;
 import com.sky.result.Result;
 import com.sky.service.SetmealService;
@@ -18,6 +17,7 @@ import java.util.List;
 @RequestMapping("/user/setmeal")
 @Api(tags = "C端-套餐浏览接口")
 public class SetmealController {
+
     @Autowired
     private SetmealService setmealService;
 
@@ -30,11 +30,7 @@ public class SetmealController {
     @GetMapping("/list")
     @ApiOperation("根据分类id查询套餐")
     public Result<List<Setmeal>> list(Long categoryId) {
-        Setmeal setmeal = new Setmeal();
-        setmeal.setCategoryId(categoryId);
-        setmeal.setStatus(StatusConstant.ENABLE);
-
-        List<Setmeal> list = setmealService.list(setmeal);
+        List<Setmeal> list = setmealService.list(categoryId);
         return Result.success(list);
     }
 
@@ -46,7 +42,7 @@ public class SetmealController {
      */
     @GetMapping("/dish/{id}")
     @ApiOperation("根据套餐id查询包含的菜品列表")
-    public Result<List<DishItemVO>> dishList(@PathVariable("id") Long id) {
+    public Result<List<DishItemVO>> listDish(@PathVariable("id") Long id) {
         List<DishItemVO> list = setmealService.getDishItemById(id);
         return Result.success(list);
     }

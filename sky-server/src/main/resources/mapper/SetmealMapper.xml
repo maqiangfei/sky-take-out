@@ -26,7 +26,10 @@
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="updateUser != null">update_user = #{updateUser},</if>
         </set>
-        where id = #{id}
+        <where>
+            id = #{id}
+            <if test="status == null">and `status` = 0</if>
+        </where>
     </update>
     <delete id="deleteByIds">
         delete from setmeal where id in
@@ -93,6 +96,8 @@
             setmeal_dish sd
             on
                 s.id = sd.setmeal_id
+        where
+            s.id = #{id}
     </select>
     <select id="getCategoryId" resultType="java.lang.Long">
         select category_id from setmeal where id = #{id}

@@ -33,13 +33,8 @@ public class CommonController {
     @PostMapping("/upload")
     @ApiOperation("文件上传")
     public Result<String> upload(MultipartFile file) {
-        try {
-            String filePath = fastDfsUtil.upload(file);
-            log.info("文件‘{}’上传成功，上传位置：{}", file.getOriginalFilename(), filePath);
-            return Result.success(filePath);
-        } catch (Exception e) {
-            log.error("文件‘{}’上传失败", file.getOriginalFilename());
-        }
-        return Result.error(MessageConstant.UPLOAD_FAILED);
+        String filePath = fastDfsUtil.upload(file);
+        log.info("文件‘{}’上传成功，上传位置：{}", file.getOriginalFilename(), filePath);
+        return Result.success(filePath);
     }
 }

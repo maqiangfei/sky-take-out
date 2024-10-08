@@ -44,13 +44,13 @@ public interface SetmealMapper {
      * @param setmeal
      */
     @AutoFill(OperationType.UPDATE)
-    void update(Setmeal setmeal);
+    Integer update(Setmeal setmeal);
 
     /**
      * 根据id查询套餐及其菜品
      * @return
      */
-    SetmealVO getByIdWithSetmealDish();
+    SetmealVO getByIdWithSetmealDish(Long id);
 
     /**
      * 根据id查询分类id

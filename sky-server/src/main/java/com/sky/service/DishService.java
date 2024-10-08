@@ -49,6 +49,7 @@ public interface DishService {
      * 起售停售菜品
      * @param status
      * @param id
+     * @return categoryId
      */
     void startOrStop(Integer status, Long id);
 
@@ -61,8 +62,8 @@ public interface DishService {
 
     /**
      * 条件查询菜品和口味
-     * @param dish
+     * @param categoryId
      * @return
      */
-    List<DishVO> listWithFlavor(Dish dish);
+    List<DishVO> listWithFlavor(Long categoryId);
 }

@@ -69,7 +69,7 @@ public interface DishMapper {
      * @param dish
      */
     @AutoFill(OperationType.UPDATE)
-    void update(Dish dish);
+    Integer update(Dish dish);
 
     /**
      * 菜品分类查询

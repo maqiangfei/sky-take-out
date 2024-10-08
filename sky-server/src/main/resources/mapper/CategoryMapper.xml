@@ -36,7 +36,8 @@
         select id, type, name, sort
         from category
         <where>
-            <if test="type != null">type = #{type}</if>
+            <if test="type != null">and `type` = #{type}</if>
+            <if test="type == null">and `status` = 1</if>
         </where>
         order by sort
     </select>

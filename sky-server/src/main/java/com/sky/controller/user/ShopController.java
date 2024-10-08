@@ -29,7 +29,7 @@ public class ShopController {
     @GetMapping("/status")
     @ApiOperation("查询店铺的营业状态")
     public Result getStatus() {
-        String status = stringRedisTemplate.opsForValue().get(RedisConstant.SHOP_STATUS);
+        String status = stringRedisTemplate.opsForValue().get(RedisConstant.SHOP_STATUS_KEY);
         int state = Integer.parseInt(status);
         log.info("查询店铺的营业状态为: {}", state == 1 ? "营业中" : "打烊中");
         return Result.success(state);
