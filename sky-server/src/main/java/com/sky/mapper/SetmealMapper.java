@@ -92,4 +92,11 @@ public interface SetmealMapper {
      * @return
      */
     List<DishItemVO> getDishItemBySetmealId(Long id);
+
+    /**
+     * 根据id查询套餐
+     * @param setmealId
+     * @return
+     */
+    Setmeal getById(Long setmealId);
 }

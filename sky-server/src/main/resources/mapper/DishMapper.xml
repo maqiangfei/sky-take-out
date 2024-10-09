@@ -122,6 +122,8 @@
             d.description,
             d.status,
             d.update_time,
+            df.id df_id,
+            df.dish_id,
             df.name df_name,
             df.value
         from
@@ -137,6 +139,9 @@
                 and d.status = #{status}
             </if>
         </where>
+    </select>
+    <select id="getById" resultType="com.sky.entity.Dish">
+        select name, image, price from dish where id = #{id}
     </select>
 
     <resultMap id="dishWithFlavorsResultMap" type="com.sky.vo.DishVO">

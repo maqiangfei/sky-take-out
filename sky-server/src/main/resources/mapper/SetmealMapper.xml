@@ -147,6 +147,9 @@
         where
             sd.setmeal_id = #{setmealId}
     </select>
+    <select id="getById" resultType="com.sky.entity.Setmeal">
+        select name, image, price from setmeal where id = #{id}
+    </select>
 
     <resultMap id="setmealWithDishResultMap" type="com.sky.vo.SetmealVO">
         <id column="id" property="id"/>

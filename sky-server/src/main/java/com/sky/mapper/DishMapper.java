@@ -91,4 +91,11 @@ public interface DishMapper {
      * @return
      */
     List<DishVO> listWithFlavor(Dish dish);
+
+    /**
+     * 根据id查询菜品
+     * @param id
+     * @return
+     */
+    Dish getById(Long id);
 }
