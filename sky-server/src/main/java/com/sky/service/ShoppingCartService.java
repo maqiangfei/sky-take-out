@@ -18,6 +18,12 @@ public interface ShoppingCartService {
     void add(ShoppingCartDTO shoppingCartDTO);
 
     /**
+     * 添加购物车
+     * @param shoppingCart
+     */
+    void add(ShoppingCart shoppingCart);
+
+    /**
      * 移除购物车
      * @param shoppingCartDTO
      */

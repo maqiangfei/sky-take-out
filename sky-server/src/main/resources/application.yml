@@ -56,3 +56,7 @@ sky:
     we-chat-pay-cert-file-path: ${sky.wechat.we-chat-pay-cert-file-path} # 平台证书
     notify-url: ${sky.wechat.notify-url} # 支付成功的回调地址
     refund-notify-url: ${sky.wechat.refund-notify-url} # 退款成功的回调地址
+  shop:
+    address: 北京市海淀区上地十街10号
+  baidu:
+    ak: KTg39J88HrrpD1VqSYcwl3Xa9dYsGiJh

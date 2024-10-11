@@ -31,8 +31,10 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
+
     @Autowired
     private SetmealMapper setmealMapper;
+
     @Autowired
     private DishMapper dishMapper;
 
@@ -43,7 +45,16 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     public void add(ShoppingCartDTO shoppingCartDTO) {
         ShoppingCart shoppingCart = buildShoppingCart(shoppingCartDTO);
-        String key = RedisConstant.CART_USER_KEY + BaseContext.getCurrentId();
+        add(shoppingCart);
+    }
+
+    /**
+     * 添加购物车
+     * @param shoppingCart
+     */
+    @Override
+    public void add(ShoppingCart shoppingCart) {
+        String key = RedisConstant.CART_USER_KEY + shoppingCart.getUserId();
         String json = stringRedisTemplate.opsForValue().get(key);
         List<ShoppingCart> shoppingCarts = JSON.parseArray(json, ShoppingCart.class);
         if (shoppingCarts != null) {
@@ -112,7 +123,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                     .amount(dish.getPrice())
                     .build();
         }
+        shoppingCart.setUserId(BaseContext.getCurrentId());
         shoppingCart.setNumber(1);
+        shoppingCart.setCreateTime(LocalDateTime.now());
         return shoppingCart;
     }
 
