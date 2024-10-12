@@ -16,4 +16,25 @@
         select id, openid, name, phone, sex, id_number, avatar, create_time
         from user where id = #{id}
     </select>
+    <select id="countUserByTypeAndDate" resultType="java.lang.Integer">
+        WITH RECURSIVE date_series AS (
+        SELECT #{begin} AS `date`
+        UNION ALL
+        SELECT DATE_ADD(date, INTERVAL 1 DAY)
+        FROM date_series
+        WHERE `date` &lt; #{end}
+        )
+        select
+        (select count(*) from user
+        <where>
+            <if test="userType != null and userType == 1">
+                date(create_time) = date_series.date
+            </if>
+            <if test="userType != null and userType == 2">
+                date(create_time) &lt;= date_series.date
+            </if>
+        </where>)
+        from date_series
+        order by date_series.date
+    </select>
 </mapper>

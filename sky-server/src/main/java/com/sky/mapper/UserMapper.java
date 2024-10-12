@@ -3,6 +3,9 @@ package com.sky.mapper;
 import com.sky.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.time.LocalDate;
+import java.util.List;
+
 /**
  * @author maqiangfei
  * @since 2024/10/7 下午1:44
@@ -29,4 +32,13 @@ public interface UserMapper {
      * @return
      */
     User getById(Long id);
+
+    /**
+     * 根据日期统计用户
+     * @param begin
+     * @param end
+     * @param userType
+     * @return
+     */
+    List<Integer> countUserByTypeAndDate(LocalDate begin, LocalDate end, Integer userType);
 }

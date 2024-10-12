@@ -107,41 +107,42 @@
     <select id="getByStatusAndOrderTimeLT" resultType="com.sky.entity.Orders">
         select * from orders where status = #{status} and order_time &lt;= #{orderTime}
     </select>
-    <select id="sumByMap" resultType="com.sky.bo.Sum4DateBO">
-        select date(order_time) `date`, sum(amount) `sum` from orders
-        <where>
-            <if test="status != null">
-                and `status` = #{status}
-            </if>
-            <if test="begin != null">
-                and date(order_time) &gt;= #{begin}
-            </if>
-            <if test="end != null">
-                and date(order_time) &lt;= #{end}
-            </if>
-        </where>
-        group by `date`
-    </select>
-    <select id="countUserByDateAndType" resultType="int">
-        WITH RECURSIVE date_series AS (
-            SELECT #{begin} AS `date`
-            UNION ALL
-            SELECT DATE_ADD(date, INTERVAL 1 DAY)
-            FROM date_series
-            WHERE `date` &lt; #{end}
+
+    <sql id="generalDates">
+        with recursive dates as (
+            select #{begin} as `date`
+            union all
+            select date_add(`date`, interval 1 day)
+            from dates
+            where `date` &lt; #{end}
         )
+    </sql>
+
+    <select id="sumByMap" resultType="double">
+        <include refid="generalDates"/>
         select
-            (select count(*) from user
+            ifnull((select sum(amount) from orders
+                    <where>
+                        date(order_time) = dates.date
+                        <if test="status != null">
+                            and status = #{status}
+                        </if>
+                    </where>), 0.0)
+        from dates
+        order by dates.date
+    </select>
+    <select id="countByMap" resultType="java.lang.Integer">
+        <include refid="generalDates"/>
+        select
+            (select count(id) from orders
             <where>
-                <if test="userType != null and userType == 1">
-                    date(create_time) = date_series.date
-                </if>
-                <if test="userType != null and userType == 2">
-                    date(create_time) &lt;= date_series.date
+                date(order_time) = dates.date
+                <if test="status != null">
+                    and status = #{status}
                 </if>
             </where>)
-        from date_series
-        order by date_series.date
+        from dates
+        order by dates.date
     </select>
 
     <resultMap id="orderWithDetail" type="com.sky.vo.OrderVO">

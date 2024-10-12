@@ -1,13 +1,11 @@
 package com.sky.mapper;
 
 import com.github.pagehelper.Page;
-import com.sky.bo.Sum4DateBO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
 import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.Mapper;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -86,15 +84,13 @@ public interface OrderMapper {
      * @param map
      * @return
      */
-    List<Sum4DateBO> sumByMap(Map<String, Object> map);
+    List<Double> sumByMap(Map<String, Object> map);
+
 
     /**
-     *
-     * @param begin
-     * @param end
+     * 根据动态条件统计订单数量
+     * @param map
      * @return
      */
-    List<Integer> countUserByDateAndType(LocalDate begin, LocalDate end, Integer userType);
-
-
+    List<Integer> countByMap(Map<String, Object> map);
 }
