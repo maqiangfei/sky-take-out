@@ -1,19 +1,17 @@
 package com.sky.service.impl;
 
-import com.google.common.collect.Lists;
 import com.sky.bo.Sum4DateBO;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrderMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.TurnoverReportVO;
+import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -42,17 +40,15 @@ public class ReportServiceImpl implements ReportService {
 
         dateList.add(begin);
 
-        while (begin.isBefore(end)) {
-            begin = begin.plusDays(1);
-            dateList.add(begin);
+        LocalDate now = begin;
+        while (now.isBefore(end)) {
+            now = now.plusDays(1);
+            dateList.add(now);
         }
 
-        LocalDateTime beginTime = LocalDateTime.of(dateList.get(0), LocalTime.MIN);
-        LocalDateTime endTime = LocalDateTime.of(end, LocalTime.MAX);
-
         Map<String, Object> map = new HashMap<>();
-        map.put("begin", beginTime);
-        map.put("end", endTime);
+        map.put("begin", begin);
+        map.put("end", end);
         map.put("status", Orders.COMPLETED);
 
         List<Sum4DateBO> sum4DateBOS = orderMapper.sumByMap(map);
@@ -69,6 +65,28 @@ public class ReportServiceImpl implements ReportService {
         return TurnoverReportVO.builder()
                 .dateList(StringUtils.join(dateList, ","))
                 .turnoverList(StringUtils.join(turnoverList, ","))
+                .build();
+    }
+
+    @Override
+    public UserReportVO getUserStatistics(LocalDate begin, LocalDate end) {
+        // 统计每日新增用户数量
+        List<Integer> newUserList = orderMapper.countUserByDateAndType(begin, end, 1);
+        // 统计每日用户总数
+        List<Integer> totalUserList = orderMapper.countUserByDateAndType(begin, end, 2);
+
+        // 生成横坐标对应日期列表
+        List<LocalDate> dateList = new ArrayList<>();
+        dateList.add(begin);
+        while (begin.isBefore(end)) {
+            begin = begin.plusDays(1);
+            dateList.add(begin);
+        }
+
+        return UserReportVO.builder()
+                .dateList(StringUtils.join(dateList, ","))
+                .newUserList(StringUtils.join(newUserList, ","))
+                .totalUserList(StringUtils.join(totalUserList, ","))
                 .build();
     }
 }
