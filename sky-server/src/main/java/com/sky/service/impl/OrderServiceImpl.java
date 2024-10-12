@@ -442,6 +442,25 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
+     * 用户催单
+     * @param id
+     */
+    @Override
+    public void reminder(Long id) {
+        Orders ordersDB = orderMapper.getById(id);
+        if (ordersDB == null || !ordersDB.getStatus().equals(Orders.TO_BE_CONFIRMED)) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        Map<String, Object> map = new HashMap<>();
+        map.put("type", 2);
+        map.put("orderId", id);
+        map.put("content", "订单号" + ordersDB.getNumber());
+        String json = JSON.toJSONString(map);
+        // 通过websocket向客户端浏览器推送消息
+        webSocketServer.sendToAllClient(json);
+    }
+
+    /**
      * 检查客户的收货地址是否超出配送范围
      * @param address
      */

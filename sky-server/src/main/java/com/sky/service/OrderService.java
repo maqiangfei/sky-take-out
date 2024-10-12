@@ -94,4 +94,10 @@ public interface OrderService {
      * @param id
      */
     void userCancelById(Long id) throws Exception;
+
+    /**
+     * 用户催单
+     * @param id
+     */
+    void reminder(Long id);
 }
