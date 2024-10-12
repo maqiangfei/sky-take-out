@@ -1,14 +1,19 @@
 package com.sky.mapper;
 
 import com.github.pagehelper.Page;
+import com.sky.bo.Sum4DateBO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author maqiangfei
@@ -78,4 +83,11 @@ public interface OrderMapper {
      * @return
      */
     List<Orders> getByStatusAndOrderTimeLT(Integer status, LocalDateTime orderTime);
+
+    /**
+     * 根据动态条件统计营业额数据
+     * @param map
+     * @return
+     */
+    List<Sum4DateBO> sumByMap(Map<String, Object> map);
 }
