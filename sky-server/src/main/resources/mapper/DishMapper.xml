@@ -143,6 +143,14 @@
     <select id="getById" resultType="com.sky.entity.Dish">
         select name, image, price from dish where id = #{id}
     </select>
+    <select id="countByMap" resultType="java.lang.Integer">
+        select count(id) from dish
+        <where>
+            <if test="status != null">
+                status = #{status}
+            </if>
+        </where>
+    </select>
 
     <resultMap id="dishWithFlavorsResultMap" type="com.sky.vo.DishVO">
         <id column="id" property="id"/>
