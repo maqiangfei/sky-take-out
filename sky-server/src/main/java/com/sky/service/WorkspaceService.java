@@ -7,6 +7,7 @@ import com.sky.vo.SetmealOverViewVO;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface WorkspaceService {
 
@@ -14,7 +15,13 @@ public interface WorkspaceService {
      * 根据时间段统计营业数据
      * @return
      */
-    BusinessDataVO getBusinessData();
+    BusinessDataVO getBusinessData(LocalDate begin, LocalDate end);
+
+    /**
+     * 根据时间段统计营业数据
+     * @return
+     */
+    List<BusinessDataVO> getBusinessDataList(LocalDate begin, LocalDate end);
 
     /**
      * 查询订单管理数据

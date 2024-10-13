@@ -37,7 +37,8 @@ public class WorkSpaceController {
     @GetMapping("/businessData")
     @ApiOperation("工作台今日数据查询")
     public Result<BusinessDataVO> businessData(){
-        BusinessDataVO businessDataVO = workspaceService.getBusinessData();
+        LocalDate date = LocalDate.now();
+        BusinessDataVO businessDataVO = workspaceService.getBusinessData(date, date);
         return Result.success(businessDataVO);
     }
 

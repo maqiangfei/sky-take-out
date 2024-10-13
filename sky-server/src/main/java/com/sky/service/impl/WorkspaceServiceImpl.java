@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +40,19 @@ public class WorkspaceServiceImpl implements WorkspaceService {
      * 根据时间段统计营业数据
      * @return
      */
-    public BusinessDataVO getBusinessData() {
+    public BusinessDataVO getBusinessData(LocalDate begin, LocalDate end) {
+        // 获取每天营业数据
+        List<BusinessDataVO> businessDataList = getBusinessDataList(begin, end);
+        // 计算总数据
+        BusinessDataVO reduce = businessDataList.stream().reduce(new BusinessDataVO(), BusinessDataVO::sum);
+        if (reduce.getTotalOrderCount() != 0 && reduce.getValidOrderCount() != 0) {
+            reduce.setOrderCompletionRate(reduce.getValidOrderCount().doubleValue() / reduce.getTotalOrderCount());
+            reduce.setUnitPrice(reduce.getTurnover() / reduce.getValidOrderCount());
+        }
+        return reduce;
+    }
+
+    public List<BusinessDataVO> getBusinessDataList(LocalDate begin, LocalDate end) {
         /**
          * 营业额：当日已完成订单的总金额
          * 有效订单：当日已完成订单的数量
@@ -47,42 +60,47 @@ public class WorkspaceServiceImpl implements WorkspaceService {
          * 平均客单价：营业额 / 有效订单数
          * 新增用户：当日新增用户的数量
          */
-        LocalDate now = LocalDate.now();
-
         Map<String, Object> map = new HashMap<>();
-        map.put("begin", now);
-        map.put("end", now);
+        map.put("begin", begin);
+        map.put("end", end);
 
         //查询总订单数
-        Integer totalOrderCount = orderMapper.countByMap(map).get(0);
+        List<Integer> totalOrderCountList = orderMapper.countByMap(map);
 
         map.put("status", Orders.COMPLETED);
         //营业额
-        Double turnover = orderMapper.sumByMap(map).get(0);
+        List<Double> turnoverList = orderMapper.sumByMap(map);
 
         //有效订单数
-        Integer validOrderCount = orderMapper.countByMap(map).get(0);
-
-        Double unitPrice = 0.0;
-
-        Double orderCompletionRate = 0.0;
-        if(totalOrderCount != 0 && validOrderCount != 0){
-            //订单完成率
-            orderCompletionRate = validOrderCount.doubleValue() / totalOrderCount;
-            //平均客单价
-            unitPrice = turnover / validOrderCount;
-        }
+        List<Integer> validOrderCountList = orderMapper.countByMap(map);
 
         //新增用户数
-        Integer newUsers = userMapper.countUserByTypeAndDate(now, now,1).get(0);
+        List<Integer> newUserList = userMapper.countUserByTypeAndDate(begin, end,1);
 
-        return BusinessDataVO.builder()
-                .turnover(turnover)
-                .validOrderCount(validOrderCount)
-                .orderCompletionRate(orderCompletionRate)
-                .unitPrice(unitPrice)
-                .newUsers(newUsers)
-                .build();
+        int size = totalOrderCountList.size();
+        List<BusinessDataVO> res = new ArrayList<>(size);
+        for (int i = 0; i < size; i++) {
+            Integer totalOrderCount = totalOrderCountList.get(i);
+            Integer validOrderCount = validOrderCountList.get(i);
+            Double unitPrice = 0.0;
+            Double orderCompletionRate = 0.0;
+            if(totalOrderCount != 0 && validOrderCount != 0){
+                //订单完成率
+                orderCompletionRate = validOrderCountList.get(i).doubleValue() / totalOrderCount;
+                //平均客单价
+                unitPrice = turnoverList.get(i) / validOrderCount;
+            }
+
+            res.add(BusinessDataVO.builder()
+                            .turnover(turnoverList.get(i))
+                            .totalOrderCount(totalOrderCount)
+                            .validOrderCount(validOrderCount)
+                            .orderCompletionRate(orderCompletionRate)
+                            .unitPrice(unitPrice)
+                            .newUsers(newUserList.get(i))
+                            .build());
+        }
+        return res;
     }
 
 
@@ -92,7 +110,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
      * @return
      */
     public OrderOverViewVO getOrderOverView() {
-        Map<String, Object> map = new HashMap();
+        Map<String, Object> map = new HashMap<>();
         map.put("begin", LocalDate.now());
         map.put("status", Orders.TO_BE_CONFIRMED);
 
@@ -130,7 +148,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
      * @return
      */
     public DishOverViewVO getDishOverView() {
-        Map<String, Integer> map = new HashMap();
+        Map<String, Integer> map = new HashMap<>();
         map.put("status", StatusConstant.ENABLE);
         Integer sold = dishMapper.countByMap(map);
 
@@ -149,7 +167,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
      * @return
      */
     public SetmealOverViewVO getSetmealOverView() {
-        Map<String, Integer> map = new HashMap();
+        Map<String, Integer> map = new HashMap<>();
         map.put("status", StatusConstant.ENABLE);
         Integer sold = setmealMapper.countByMap(map);
 
